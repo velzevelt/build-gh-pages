@@ -15,7 +15,7 @@
 
 namespace fs = std::filesystem;
 
-#define USAGE "Usage: "
+#define USAGE "Usage: build-gh-pages project_dir output_dir --root-prefix \"/project-name/\""
 #define ROOT_PREFIX_L "--root-prefix"
 #define REPLACE_IN_L "--replace-in"
 #define NO_COPY_L "--no-copy"
@@ -121,6 +121,7 @@ int parse_args(int argc, char **argv, Args &res)
     if (argc - 1 < MIN_ARGC)
     {
         std::cout << "Expected at least " << MIN_ARGC << " arguments got " << argc - 1 << "\n";
+        std::cout << USAGE << "\n";
         return EXIT_FAILURE;
     }
     
