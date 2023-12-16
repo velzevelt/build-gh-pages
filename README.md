@@ -8,3 +8,10 @@ like so "/assets/images/img.png" -> "/prefix/assets/images/img.png"
 ```bash
 build-gh-pages project_dir output_dir --root-prefix "/project-name/" --replace-in "html" "css"
 ```
+
+
+## Compile examples
+
+```bash
+build-gh-pages example out --root-prefix "/project/"
+```
