@@ -91,6 +91,19 @@ std::string str_tolower(std::string s)
     return s;
 }
 
+std::vector<std::size_t> str_find_all(const std::string &haystack, const std::string &needle)
+{
+    std::vector<std::size_t> positions;
+    size_t pos = haystack.find(needle, 0);
+    while(pos != std::string::npos)
+    {
+        positions.push_back(pos);
+        pos = haystack.find(haystack, pos + 1);
+    }
+
+    return positions;
+}
+
 bool is_answer_yes(std::string s)
 {
     if (s.empty())
@@ -236,7 +249,66 @@ int main(int argc, char **argv)
 
     for (auto &p : files)
     {
+        std::cout << "Scanning file " << p << '\n';
         
+        std::ifstream in_f(p);
+        if (not in_f.is_open())
+        {
+            std::cerr << "Cannot open file " << p << '\n';
+            continue;
+        }
+
+        fs::path temp_path = p;
+        temp_path.replace_extension(".temp");
+        
+        std::ofstream out_f(temp_path);
+        if (not out_f.is_open())
+        {
+            std::cerr << "Cannot create temp file " << temp_path << '\n';
+            in_f.close();
+            continue;
+        } 
+
+        std::size_t replace_count = 0;
+        std::string line;
+        while (std::getline(in_f, line))
+        {
+            auto root_positions = str_find_all(line, "/");
+            for (auto pos : root_positions)
+            {
+                std::size_t prev_pos = pos - 1;
+                char prev_char = '(';
+                try { prev_char = line.at(prev_pos);}
+                catch (std::out_of_range &e) { prev_char = '(';} // '/' is the first symbol in file, still valid
+                
+                while (isspace(prev_char))
+                {
+                    if (prev_pos == 0)
+                        break;
+
+                    prev_char = line[prev_pos];
+                    prev_pos--;
+                }
+
+                bool valid_root = prev_char == '(' or prev_char == '\'' or prev_char == '\"';
+                if (valid_root)
+                {
+                    line.replace(pos, 1, args.root_prefix);
+                    replace_count++;
+                }
+            }
+
+            out_f << line << "\n";
+        }
+
+        in_f.close();
+        out_f.close();
+
+        std::cout << "Scanning done, replaced " << replace_count << " symbols" << '\n';
+        
+        fs::remove(p);
+        fs::copy(temp_path, p);
+        fs::remove(temp_path);
     }
 
     return EXIT_SUCCESS;
