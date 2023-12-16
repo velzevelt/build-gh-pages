@@ -285,7 +285,10 @@ int main(int argc, char **argv)
                 while (isspace(prev_char))
                 {
                     if (prev_pos == 0)
+                    {
+                        prev_char = '(';
                         break;
+                    }
 
                     prev_char = line[prev_pos];
                     prev_pos--;
