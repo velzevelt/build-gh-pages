@@ -276,6 +276,8 @@ int main(int argc, char **argv)
         while (std::getline(in_f, line))
         {
             auto root_positions = str_find_all(line, "/");
+            std::vector<std::size_t> valid_root_positions;
+
             for (auto pos : root_positions)
             {
                 std::size_t prev_pos = pos - 1;
@@ -298,9 +300,17 @@ int main(int argc, char **argv)
                 bool valid_root = prev_char == '(' or prev_char == '\'' or prev_char == '\"';
                 if (valid_root)
                 {
-                    line.replace(pos, 1, args.root_prefix);
-                    replace_count++;
+                    valid_root_positions.push_back(pos);
                 }
+            }
+
+            size_t offset = 0;
+            size_t offset_size = args.root_prefix.size() - 1;
+            for (auto pos : valid_root_positions)
+            {
+                line.replace(pos + offset, 1, args.root_prefix);
+                offset += offset_size;
+                replace_count++;
             }
 
             out_f << line << "\n";
