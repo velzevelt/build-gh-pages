@@ -98,7 +98,7 @@ std::vector<std::size_t> str_find_all(const std::string &haystack, const std::st
     while(pos != std::string::npos)
     {
         positions.push_back(pos);
-        pos = haystack.find(haystack, pos + 1);
+        pos = haystack.find(needle, pos + 1);
     }
 
     return positions;
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
             std::cout << "Copying dir " << args.input_dir
                     << " as " << args.output_dir
                     << '\n';
-            fs::copy(args.input_dir, args.output_dir);
+            fs::copy(args.input_dir, args.output_dir, fs::copy_options::recursive);
         }
         else
         {
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
             std::cout << "Copying dir " << args.input_dir
                     << " as " << args.output_dir
                     << '\n';
-            fs::copy(args.input_dir, args.output_dir);
+            fs::copy(args.input_dir, args.output_dir, fs::copy_options::recursive);
     }
 
 
@@ -237,11 +237,12 @@ int main(int argc, char **argv)
     {
         fs::path p = dir_entry.path();
 
-        if (args.replace_in_extensions.empty()
+        if (dir_entry.is_regular_file() and 
+            (args.replace_in_extensions.empty()
             or
             std::find(args.replace_in_extensions.begin(), 
             args.replace_in_extensions.end(), 
-            p.extension()) != args.replace_in_extensions.end()
+            p.extension()) != args.replace_in_extensions.end())
         )
         {
             files.push_back(p);
