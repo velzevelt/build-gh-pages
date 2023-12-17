@@ -20,3 +20,8 @@ windows-cygwin-release:
 
 windows-mingw-release:
 	mingw32-g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages -Wall -Wextra -O3 -static -DWIN32
+
+
+all:
+	g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-amd64 -Wall -Wextra -O3
+	i686-w64-mingw32-c++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-win64 -Wall -Wextra -DWIN32 -O3 -static
