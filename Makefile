@@ -1,27 +1,26 @@
-linux:
-	g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages -Wall -Wextra -g
+SRC=./src
+BIN=./bin
 
-linux-release:
-	g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages -Wall -Wextra -O3
+$(shell mkdir -p $(BIN))
 
-linux-mingw:
-	i686-w64-mingw32-c++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages -Wall -Wextra -g -static -DWIN32
+g++-debug: 
+	g++ -I $(SRC) $(SRC)/build-gh-pages.cpp -o $(BIN)/build-gh-pages-linux-amd64 -Wall -Wextra -g
 
-linux-mingw-release:
-	i686-w64-mingw32-c++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages -Wall -Wextra -DWIN32 -O3 -static
-
-
-windows-cygwin:
-	gcc -I ./src/ ./src/build-gh-pages.c -o ./bin/build-gh-pages -Wall -Wextra -g
-
-windows-cygwin-release:
-	gcc -I ./src/ ./src/build-gh-pages.c -o ./bin/build-gh-pages -Wall -Wextra -O2
+g++-release: 
+	g++ -I $(SRC) $(SRC)/build-gh-pages.cpp -o $(BIN)/build-gh-pages-linux-amd64 -Wall -Wextra -O3 -s
 
 
-windows-mingw-release:
-	mingw32-g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages -Wall -Wextra -O3 -static -DWIN32
+mingw-debug: 
+	i686-w64-mingw32-c++ -I $(SRC) $(SRC)/build-gh-pages.cpp -o $(BIN)/build-gh-pages-win64 -Wall -Wextra -g -static -DWIN32
+
+mingw-release: 
+	i686-w64-mingw32-c++ -I $(SRC) $(SRC)/build-gh-pages.cpp -o $(BIN)/build-gh-pages-win64 -Wall -Wextra -DWIN32 -O3 -static -s
+
+
+clean: 
+	rm -rf $(BIN)/*
 
 
 all:
-	g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-linux-amd64 -Wall -Wextra -O3 -s
-	i686-w64-mingw32-c++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-win64 -Wall -Wextra -DWIN32 -O3 -static -s
+	$(MAKE) g++-release
+	$(MAKE) mingw-release
