@@ -11,6 +11,9 @@
 #include <windows.h>
 #include <processenv.h>
 #include <shellapi.h>
+#include <locale>
+#include <codecvt>
+#include <string>
 #endif
 
 namespace fs = std::filesystem;
@@ -22,8 +25,28 @@ namespace fs = std::filesystem;
 #define MIN_ARGC 4
 
 
-template<typename T>
-int exit_on_not_exists(T arg)
+#ifdef WIN32
+using omnistring = std::wstring;
+#else
+using omnistring = std::string;
+#endif
+
+#ifdef WIN32
+std::wstring stringToWstring(const std::string& str) 
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    return converter.from_bytes(str);
+}
+
+std::string wstringToString(const std::wstring& wstr) 
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.to_bytes(wstr);
+}
+#endif
+
+
+int exit_on_not_exists(omnistring arg)
 {
     if (not fs::exists(arg))
     {
@@ -63,6 +86,7 @@ struct Args
 {
     fs::path input_dir;
     fs::path output_dir;
+    
     std::string root_prefix;
     std::vector<std::string> replace_in_extensions;
 
@@ -70,6 +94,10 @@ struct Args
     bool no_copy = false;
 };
 
+// bool has_sign(const std::string &haystack, const std::string &needle)
+// {
+//     return haystack.find(needle) != std::string::npos;
+// }
 
 bool is_short_opt(const std::string &src)
 {
@@ -124,15 +152,24 @@ int parse_args(int argc, char **argv, Args &res)
         std::cout << USAGE << "\n";
         return EXIT_FAILURE;
     }
-    
-    res.input_dir = argv[1];
-    res.output_dir = argv[2];
+
+    #ifdef WIN32
+    LPWSTR cmd = GetCommandLineW();
+    LPWSTR *argvw = CommandLineToArgvW(cmd, &argc);
+    #else
+    char **argvw = argv;
+    #endif
+
+    res.input_dir = argvw[1];
+    res.output_dir = argvw[2];
 
     std::string last_option;
     for (int i = 3; i < argc; i++)
     {
         std::string arg = argv[i];
+
         bool is_option = is_long_opt(arg) or is_short_opt(arg);
+        // bool is_assignable = is_option and has_sign(arg, "=");
         if (is_option)
         {
             last_option = arg;
@@ -147,7 +184,11 @@ int parse_args(int argc, char **argv, Args &res)
 
         if (last_option.compare(ROOT_PREFIX_L) == 0)
         {
+            #ifdef WIN32
+            res.root_prefix = wstringToString(argvw[i]);
+            #else
             res.root_prefix = arg;
+            #endif
         }
         else if (last_option.compare(REPLACE_IN_L) == 0)
         {
@@ -304,8 +345,11 @@ int main(int argc, char **argv)
                 }
             }
 
+            
+
             size_t offset = 0;
             size_t offset_size = args.root_prefix.size() - 1;
+            
             for (auto pos : valid_root_positions)
             {
                 line.replace(pos + offset, 1, args.root_prefix);
@@ -313,6 +357,7 @@ int main(int argc, char **argv)
                 replace_count++;
             }
 
+            
             out_f << line << "\n";
         }
 
