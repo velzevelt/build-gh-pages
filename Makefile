@@ -23,5 +23,5 @@ windows-mingw-release:
 
 
 all:
-	g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-linux-amd64 -Wall -Wextra -O3
-	i686-w64-mingw32-c++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-win64 -Wall -Wextra -DWIN32 -O3 -static
+	g++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-linux-amd64 -Wall -Wextra -O3 -s
+	i686-w64-mingw32-c++ -I ./src/ ./src/build-gh-pages.cpp -o ./bin/build-gh-pages-win64 -Wall -Wextra -DWIN32 -O3 -static -s
