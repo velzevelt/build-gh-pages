@@ -321,6 +321,16 @@ int main(int argc, char **argv)
 
             for (auto pos : root_positions)
             {
+                std::size_t next_pos = pos + 1;
+                char next_char = '0';
+                try {next_char = line.at(next_pos);}
+                catch (std::out_of_range &e) { next_char = '0';}
+
+                if (next_char == '*') // /* css comment
+                    continue;
+
+                
+
                 std::size_t prev_pos = pos - 1;
                 char prev_char = '(';
                 try { prev_char = line.at(prev_pos);}
